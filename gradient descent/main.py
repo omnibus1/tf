@@ -27,19 +27,27 @@ def main():
     Z=f4(X,Y)
     fig,ax=plt.subplots()
     optimiser=tf.keras.optimizers.SGD(learning_rate=0.2,momentum=0.8)
+    optimiser.build([current_x,current_y])
+    
 
     def step(i):
         nonlocal current_x
         nonlocal current_y
+        value_arr=[current_x,current_y]
+        i=random.randint(0,1)
+       
+        stochastic_var=value_arr[i]
+
+        
         with tf.GradientTape() as tape:
             current_z=f4(current_x,current_y)
         ax.clear()
         CS = ax.contour(X, Y, Z)
         ax.clabel(CS, inline=True, fontsize=10)
         ax.scatter(current_x.numpy(),current_y.numpy())
-        gradients=tape.gradient(current_z,[current_x,current_y])
+        gradients=tape.gradient(current_z,[stochastic_var])
         print(f'current value: {f4(current_x,current_y).numpy()}')
-        optimiser.apply_gradients(zip(gradients,[current_x,current_y]))
+        optimiser.apply_gradients(zip(gradients,[stochastic_var]))
 
     animation=mpl_animation.FuncAnimation(fig,step,interval=50)
     plt.show()
